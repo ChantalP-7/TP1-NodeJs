@@ -1,7 +1,36 @@
 body {
     font-family: Arial, sans-serif;
     padding: 20px;
-    background: #f9f9f9;
+    background: #98ffff;
+  }
+
+  .conteneur {
+    display: block;
+  }
+
+  #data-container {
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;   
+  }
+
+  .grille-carte {     
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 20px;
+  }
+
+  .carte {
+    padding: 5px;
+    box-shadow: 0 0 12px rgba(197, 197, 197, 0.699);
+    background-color: white;
+    border-radius: 5px;
+  }
+
+  .images-random {
+     object-fit: cover;
+     aspect-ratio: 7/5;
+     max-width: 100%;
   }
   
   h1, h2 {
@@ -18,8 +47,31 @@ body {
     margin: 10px 0;
     padding: 10px;
     border-left: 4px solid #007BFF;
-  }
+  } 
 
+#recharger {
+  padding: 14px 22px;
+  background-color: rgb(16, 224, 127);
+  border-radius: 3px;
+  border: none;
+  font-size: 24px; 
+  margin: 50px auto; 
+  width: 300px;
+}
 
+#recharger:hover {
+  cursor: pointer;
+  background-color: #333;
+  color: white;
+}
+
+header.image-banniere {
+  background-image: url("./images/cat-8062388_1280.jpg");
+  background-position: center;
+  background-size: cover;
+  background-attachment: fixed;
+  min-width: 100%;
+  min-height: auto;
+}
 
 

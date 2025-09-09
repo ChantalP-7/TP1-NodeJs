@@ -2,13 +2,7 @@
 
 const urlParams = new URLSearchParams(window.location.search);
 //const randomCats = urlParams.get("/random-cats");
-const limit = urlParams.get("limit") || 25;
-
-const boutonRecharger = document.querySelector("#recharger");
-
-boutonRecharger.addEventListener('click', () => {
-	window.location.reload();
-})
+const limit = urlParams.get("limit") || 10;
 
 
 fetch(`/random-cats?limit=${limit}`)
@@ -36,7 +30,7 @@ fetch(`/random-cats?limit=${limit}`)
 			return;
 		}*/
 
-		/*const entries = Object.entries(images); .slice(0, 25/ // Limit to 5 results
+		const entries = Object.entries(images); /*.slice(0, 25)*/ // Limit to 5 results
 		container.innerHTML = `
       <h2>${randomCats.toUpperCase()}</h2>
         ${entries
@@ -46,21 +40,6 @@ fetch(`/random-cats?limit=${limit}`)
 			)
 			.join("")}
     `;
-	})*/
-		const imagesHtml = images
-			.map(
-				(url) =>
-					`<div class="carte">
-						<img class="images-random" src="${url}" alt="chat"  />
-					</div>
-					`
-			)
-			.join("");
-
-		container.innerHTML = `
-			<h2 class="text-center">Voici ${images.length} de nos magnifiques chats 🐱!</h2>
-			<div class="grille-carte">${imagesHtml}</div>
-		`;
 	})
 	.catch((err) => {
 		document.getElementById("data-container").innerText =
