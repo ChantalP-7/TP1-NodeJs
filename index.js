@@ -1,99 +1,199 @@
+const path = require("path");
 const express = require("express");
 const app = express();
-const fs = require("fs");
-const request = require("request");
 const config = require("./config.js");
-const path = require("path");
-const axios = require('axios');
+const axios = require("axios");
+const request = require("request");
+const fs = require("fs");
 
-// Serve static files (HTML, CSS, JS)
+app.use((req, res, next) => {
+	res.setHeader(
+		"Content-Security-Policy",
+		"default-src 'self'; connect-src 'self'; script-src 'self'; img-src 'self' https://cdn2.thecatapi.com data:; style-src 'self';"
+	);
+	next();
+});
+
 app.use(express.static(path.join(__dirname, "public")));
 
-const catApiUrl = "https://api.thecatapi.com/v1/images/search";
+app.get("/", (req, res) => {
+	res.send("Le serveur fonctionne ✅");
+});
 
-app.get(`/random-cats`, async (req, res) => {
-	const limit = parseInt(req.query.limit) || 5;
-	
+const MAX_RETRIES = 5;
+
+async function fetchBreedData(breedId) {
 	try {
-		const response = await axios.get(
-			`https://api.thecatapi.com/v1/images/search?limit=${limit}`,
+		const allBreeds = await axios.get(
+			"https://api.thecatapi.com/v1/breeds",
 			{
-				// const response = await axios.get(`${catApiUrl}?${limit}`, {
-				headers: {
-					"x-api-key": `${config.API_KEY}`,
-				},
+				headers: { "x-api-key": config.API_KEY },
 			}
 		);
 
-		const imagesChat = response.data.map(cat  => cat.url);
+		const breedInfo = allBreeds.data.find((b) => b.id === breedId);
 
-		res.json({ images: imagesChat });
-	} catch (error) {
-		console.error("Erreur lors de l'appel de l'appi : ", error.message);
-		res.status(500).json({ error: "Ne peux pas récupérer l'image" });
+		if (!breedInfo) {
+			throw new Error("Race introuvable");
+		}
+
+		const imageResponse = await axios.get(
+			`https://api.thecatapi.com/v1/images/search?breed_id=${breedId}`,
+			{
+				headers: { "x-api-key": config.API_KEY },
+			}
+		);
+
+		const imageUrl = imageResponse.data[0]?.url || null;
+
+		// tableau copié avec les infos combinés
+		return {
+			...breedInfo,
+			imageUrl,
+		};
+	} catch (err) {
+		console.error("Erreur dans fetchBreedData:", err.message);
+		throw err;
+	}
+}
+
+app.get("/breed/:id", async (req, res) => {
+	const breedId = req.params.id;
+
+	try {
+		const allBreeds = await axios.get(
+			"https://api.thecatapi.com/v1/breeds",
+			{
+				headers: { "x-api-key": config.API_KEY },
+			}
+		);
+		const breed = allBreeds.data.find((b) => b.id === breedId);
+
+		if (!breed) {
+			return res.status(404).send("Race non trouvée.");
+		}
+
+		// Récupérer plusieurs images
+		const imgRes = await axios.get(
+			`https://api.thecatapi.com/v1/images/search?breed_id=${breedId}&limit=10`,
+			{
+				headers: { "x-api-key": config.API_KEY },
+			}
+		);
+
+		const images = imgRes.data.map((img) => ({
+			url: img.url,
+		}));
+
+		// Image par défaut
+		breed.imageUrl = images[0]?.url || "";
+
+		// Images supplémentaires
+		breed.images = images;
+
+		//Sauvegarde dans un fichier JSON
+		fs.writeFile(
+			`${breedId}.json`,
+			JSON.stringify(breed, null, 2),
+			(err) => {
+				if (err) {
+					console.error("Erreur d'écriture :", err);
+					return res
+						.status(500)
+						.send("Erreur lors de la sauvegarde.");
+				}
+
+				res.redirect(`/view?breed=${breedId}`);
+			}
+		);
+	} catch (err) {
+		console.error("Erreur dans /breed/:id :", err.message);
+		res.status(500).send("Erreur lors de la récupération des données.");
 	}
 });
 
-
-/*app.get(`/med&mime_types=jpg&format=json&has_breeds=true&order=ASC&page=0&limit=${limit}&include_breeds=1&include_categories=1`, async (req, res) => {
-	try {
-
-		const response = await axios.get(catApiUrl, {
-			headers: {
-				'x-api-key': `${config.API_KEY}`
-			}
-		});
-		
-		const imageChat = response.data[0]?.url;
-		res.json ({ imageUrl : imageChat});
-	} catch (error) {
-		console.error("Erreur lors de l'appel de l'appi : ", error.message);
-		res.status(500).json({error: 'Ne peux pas récupérer l\'image'});
-	}
-})*/
-
-
-
-// API route to fetch data and save to JSON file
-/*app.get("/ticker=:id", function (req, res) {
-	const ticker = req.params.id;
-	const url = `https://api.thecatapi.com/v1/images/&symbol=${ticker}&url=url&api_key=${config.API_KEY}`;
-	//const url = `https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=${ticker}&interval=5min&apikey=${config.API_KEY}`;
-	request.get({ url, json: true }, (err, response, data) => {
-		if (err || response.statusCode !== 200) {
-			return res.status(500).send("Error fetching data");
-		}
-
-		fs.writeFile(`${ticker}.json`, JSON.stringify(data), (err) => {
-			if (err) return res.status(500).send("Error saving file");
-			res.redirect(`/view?ticker=${ticker}`); // Redirect to view page
-		});
-	});
-});*/
-
-
-
-// Serve HTML page with stock data
 app.get("/view", (req, res) => {
 	res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
-// Serve stock data as JSON for frontend to fetch
+app.get("/breed-details/:id", (req, res) => {
+	const breedId = req.params.id;
+	const filePath = path.join(__dirname, `${breedId}.json`);
+
+	fs.readFile(filePath, "utf8", (err, data) => {
+		if (err) {
+			console.error(" Fichier JSON introuvable :", err.message);
+			return res.status(404).send("Race non trouvée.");
+		}
+
+		const breed = JSON.parse(data);
+
+		if (!breed || !breed.name) {
+			return res.status(404).send("Détails de la race indisponibles.");
+		}
+		const html = `
+			<!DOCTYPE html>
+			<html lang="fr">
+			<head>
+				<meta charset="UTF-8">
+				<title>Détails de la race ${breed.name}</title>
+				<link rel="stylesheet" href="/style.css">
+			</head>
+			<body>
+				<header>
+					<nav>
+						<a href="#">Accueil</a>
+						<a href="#">API</a>
+						<a href="#">Contact</a>
+					</nav>
+				</header>
+				<main>				
+					<div id="breed-details"  class="conteneur">
+						<div id="breed-details" class="div-details">							
+							<h1>Détails de la race : ${breed.name}</h1>
+							<img class="img-principale" src="${breed.imageUrl}" alt="${breed.name}">
+							<p><strong>Origine :</strong> ${breed.origin}</p>
+							<p><strong>Tempérament :</strong> ${breed.temperament}</p>
+							<p><strong>Description :</strong> ${breed.description}</p>
+							<p><a href="${breed.wikipedia_url}" target="_blank">Wikipedia</a></p>
+							<hr>
+							<div>
+								<h3>Retour race de chats</h3>								
+								<a class="click-details" href="http://localhost:3000/breed/${breedId}/">Cliquez</a>
+							</div>
+						</div>
+						
+					</div>
+				</main>
+				<footer>
+					Tous droits réservés : Cat
+				</footer>
+			</body>
+			</html>
+		`;
+		res.send(html);
+	});
+});
+
+// Données du fichier json pour fetche
 app.get("/data/:id", (req, res) => {
-	const filePath = `${__dirname}/${req.params.id}.json`;
+	const filePath = path.join(__dirname, `${req.params.id}.json`);
 	fs.readFile(filePath, "utf8", (err, data) => {
 		if (err) return res.status(404).send({ error: "Data not found" });
 		res.json(JSON.parse(data));
 	});
 });
 
-//const PORT = 3000;
-
 app.listen(config.PORT, () => {
-	console.log(`✅ Server running at http://localhost:${config.PORT}`);
+	console.log(`Server running at http://localhost:${config.PORT}`);
 });
 
+// gestion des erreurs dans la console
 
-/*app.listen(PORT, () => {
-	console.log(`Server running on PORT ${PORT}`);
-});*/
+process.on("uncaughtException", (err) => {
+	console.error("Uncaught Exception:", err);
+});
+
+process.on("unhandledRejection", (reason, promise) => {
+	console.error("Unhandled Rejection:", reason);
+});
