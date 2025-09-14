@@ -1,68 +1,31 @@
-//const https = require("follow-redirects").https;
-
 const urlParams = new URLSearchParams(window.location.search);
-//const randomCats = urlParams.get("/random-cats");
-const limit = urlParams.get("limit") || 25;
+const breed = urlParams.get("breed");
 
-const boutonRecharger = document.querySelector("#recharger");
-
-boutonRecharger.addEventListener('click', () => {
-	window.location.reload();
-})
-
-
-fetch(`/random-cats?limit=${limit}`)
+fetch(`/data/${breed}`)
 	.then((res) => res.json())
 	.then((data) => {
 		const container = document.getElementById("data-container");
-		const images = data["images"];
+		const clickDetails = document.querySelector(".click-details");
 
-		if (!images || images.length === 0) {
-			container.innerHTML = "Pas d'images trouvées.";
+		if (!data.images || data.images.length === 0) {
+			container.innerHTML = "Aucune image trouvée.";
 			return;
 		}
 
-		//const cats = response.data;
+		const images = data.images.slice(0, 5);
 
-		/*const imagesHtml = cats
+		container.innerHTML = images
 			.map(
-				(cat) =>
-					`<img src="${cat.url}" alt="chat" style="width: 200px; margin: 10px; border-radius: 10px;" />`
-			)
-			.join("");*/
-
-		/*if (!id) {
-			container.innerHTML = "No data found for this ticker.";
-			return;
-		}*/
-
-		/*const entries = Object.entries(images); .slice(0, 25/ // Limit to 5 results
-		container.innerHTML = `
-      <h2>${randomCats.toUpperCase()}</h2>
-        ${entries
-			.map(
-				(cat) =>
-					`<img src="${cat.url}" alt="chat" style="width: 200px; margin: 10px; border-radius: 10px;" />`
-			)
-			.join("")}
-    `;
-	})*/
-		const imagesHtml = images
-			.map(
-				(url) =>
-					`<div class="carte">
-						<img class="images-random" src="${url}" alt="chat"  />
-					</div>
-					`
+				(img) =>
+					`<img src="${img.url}" alt="Chat" style="max-width:200px;margin:10px;">`
 			)
 			.join("");
 
-		container.innerHTML = `
-			<h2 class="text-center">Voici ${images.length} de nos magnifiques chats 🐱!</h2>
-			<div class="grille-carte">${imagesHtml}</div>
-		`;
+		// Mise à jour du lien
+		clickDetails.href = `/breed-details/${breed}`;
 	})
 	.catch((err) => {
+		console.error("Erreur lors du chargement :", err);
 		document.getElementById("data-container").innerText =
-			"Error loading data";
+			"Erreur de chargement des données.";
 	});
