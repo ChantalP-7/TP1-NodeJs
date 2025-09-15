@@ -138,6 +138,9 @@ app.get("/breed-details/:id", (req, res) => {
 				<meta charset="UTF-8">
 				<title>Détails de la race ${breed.name}</title>
 				<link rel="stylesheet" href="/style.css">
+				<link rel="preconnect" href="https://fonts.googleapis.com">
+				<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+				<link href="https://fonts.googleapis.com/css2?family=Dosis:wght@200..800&family=Oswald:wght@200..700&family=Zen+Kaku+Gothic+New&display=swap" rel="stylesheet">
 			</head>
 			<body>
 				<header>
@@ -148,25 +151,23 @@ app.get("/breed-details/:id", (req, res) => {
 					</nav>
 				</header>
 				<main>				
-					<div id="breed-details"  class="conteneur">
+					<div id=""  class="conteneur">
 						<div id="breed-details" class="div-details">							
-							<h1>Détails de la race : ${breed.name}</h1>
+							<h1 class="h1">Détails de la race : ${breed.name}</h1>
 							<img class="img-principale" src="${breed.imageUrl}" alt="${breed.name}">
-							<p><strong>Origine :</strong> ${breed.origin}</p>
-							<p><strong>Tempérament :</strong> ${breed.temperament}</p>
-							<p><strong>Description :</strong> ${breed.description}</p>
-							<p><a href="${breed.wikipedia_url}" target="_blank">Wikipedia</a></p>
-							<hr>
-							<div>
-								<h3>Retour race de chats</h3>								
-								<a class="click-details" href="http://localhost:3000/breed/${breedId}/">Cliquez</a>
-							</div>
-						</div>
-						
+							<p class="p"><strong>Origine :</strong> ${breed.origin}</p>
+							<p class="p"><strong>Tempérament :</strong> ${breed.temperament}</p>
+							<p class="p"><strong>Description :</strong> ${breed.description}</p>
+							<p class="p"><a href="${breed.wikipedia_url}" target="_blank">Wikipedia</a></p>
+							<hr>							
+							<h3 class="h3">Retour race de chats</h3>
+							<br><br>								
+							<a class="click-details" href="http://localhost:3000/breed/${breedId}/">Cliquez</a>
+						</div>						
 					</div>
 				</main>
 				<footer>
-					Tous droits réservés : Cat
+					Tous droits réservés : Chantal Pépin
 				</footer>
 			</body>
 			</html>
