@@ -138,10 +138,6 @@ app.get("/breed-details/:id", (req, res) => {
 				<meta charset="UTF-8">
 				<title>Détails de la race ${breed.name}</title>
 				<link rel="stylesheet" href="/style.css">
-				<link rel="preconnect" href="https://fonts.googleapis.com">
-				<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-				<link href="https://fonts.googleapis.com/css2?family=Dosis:wght@200..800&family=Oswald:wght@200..700&family=Zen+Kaku+Gothic+New&display=swap" rel="stylesheet">
-			</head>
 			<body>
 				<header>
 					<nav>
@@ -153,21 +149,21 @@ app.get("/breed-details/:id", (req, res) => {
 				<main>				
 					<div id=""  class="conteneur">
 						<div id="breed-details" class="div-details">							
-							<h1 class="h1">Détails de la race : ${breed.name}</h1>
+							<h1 class="cossette-titre-regular">Détails de la race : ${breed.name}</h1>
 							<img class="img-principale" src="${breed.imageUrl}" alt="${breed.name}">
-							<p class="p"><strong>Origine :</strong> ${breed.origin}</p>
-							<p class="p"><strong>Tempérament :</strong> ${breed.temperament}</p>
-							<p class="p"><strong>Description :</strong> ${breed.description}</p>
+							<p class="p"><span class="indigo">Origine </span>: ${breed.origin}</p>
+							<p class="p"><span class="indigo">Tempérament </span>: ${breed.temperament}</p>
+							<p class="p"><span class="indigo">Description </span>: ${breed.description}</span>
 							<p class="p"><a href="${breed.wikipedia_url}" target="_blank">Wikipedia</a></p>
 							<hr>							
-							<h3 class="h3">Retour race de chats</h3>
+							<h3 class="h3 simple">Retour race de chats</h3>
 							<br><br>								
-							<a class="click-details" href="http://localhost:3000/breed/${breedId}/">Cliquez</a>
+							<a class="click-details simple" href="http://localhost:3000/breed/${breedId}/">Cliquez</a>
 						</div>						
 					</div>
 				</main>
 				<footer>
-					Tous droits réservés : Chantal Pépin
+					Tous droits réservés : The Api Cat  - Fait avec ♥ par Chantal
 				</footer>
 			</body>
 			</html>
@@ -189,12 +185,3 @@ app.listen(config.PORT, () => {
 	console.log(`Server running at http://localhost:${config.PORT}`);
 });
 
-// gestion des erreurs dans la console
-
-process.on("uncaughtException", (err) => {
-	console.error("Uncaught Exception:", err);
-});
-
-process.on("unhandledRejection", (reason, promise) => {
-	console.error("Unhandled Rejection:", reason);
-});

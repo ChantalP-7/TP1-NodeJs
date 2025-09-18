@@ -12,19 +12,18 @@ fetch(`/data/${breed}`)
 			container.innerHTML = "Aucune image trouvée.";
 			return;
 		}
-
-		const images = data.images.slice(0, 5);
-
+		const images = data.images.slice(0, 5); 
+		
 		container.innerHTML = images
 			.map(
 				(img) =>
-					`<img src="${img.url}" alt="Chat" style="max-width:300px; margin:10px;">`
+					`<img class="image-breed" src="${img.url}" alt="Chat">`
 			)
 			.join("");
 
 		// Mise à jour du lien
-		clickDetails.href = `/breed-details/${breed}`;
 		h1.innerText = `Voir les détails de la race ${breed}`;
+		clickDetails.href = `/breed-details/${breed}`;		
 	})
 	
 	.catch((err) => {
