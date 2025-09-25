@@ -20,43 +20,6 @@ app.get("/", (req, res) => {
 	res.send("Le serveur fonctionne ✅");
 });
 
-const MAX_RETRIES = 5;
-
-async function fetchBreedData(breedId) {
-	try {
-		const allBreeds = await axios.get(
-			"https://api.thecatapi.com/v1/breeds",
-			{
-				headers: { "x-api-key": config.API_KEY },
-			}
-		);
-
-		const breedInfo = allBreeds.data.find((b) => b.id === breedId);
-
-		if (!breedInfo) {
-			throw new Error("Race introuvable");
-		}
-
-		const imageResponse = await axios.get(
-			`https://api.thecatapi.com/v1/images/search?breed_id=${breedId}`,
-			{
-				headers: { "x-api-key": config.API_KEY },
-			}
-		);
-
-		const imageUrl = imageResponse.data[0]?.url || null;
-
-		// tableau copié avec les infos combinés
-		return {
-			...breedInfo,
-			imageUrl,
-		};
-	} catch (err) {
-		console.error("Erreur dans fetchBreedData:", err.message);
-		throw err;
-	}
-}
-
 app.get("/breed/:id", async (req, res) => {
 	const breedId = req.params.id;
 

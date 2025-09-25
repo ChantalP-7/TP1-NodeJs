@@ -26,10 +26,10 @@ header nav {
 
 header nav a {  
   margin: 0 10px;
-  color: black;
+  color: black !important;
   text-decoration: none;
   font-size: 22px;
-  /*font-family: 'Oswald' !important;*/
+  font-family: 'sans serif' !important;
 }
 
 header nav a:hover {
@@ -71,6 +71,14 @@ main {
     border: 1px solid #fff;
 }
 
+
+.image-default {
+  object-fit: cover;
+    aspect-ratio: 3/4;
+    min-width: 100%;
+    padding: 7px; 
+    border: 1px solid #fff;
+}
   
 .h1 {    
   font-size: 34px;
@@ -121,7 +129,7 @@ select {
 
 header {
   /*background-color: rgb(66, 177, 56);*/
-  background-color: goldenrod;
+  background-color: gold;
   color: black;
   padding: 10px;
 }
@@ -216,7 +224,7 @@ h1 {
 }
 
 footer {
-  background-color: goldenrod;
+  background-color: gold;
   color: rgb(0, 0, 0);
   text-align: center;
   padding: 10px;
@@ -224,5 +232,9 @@ footer {
   font-size: 22px;  
 }
 
+
+.invisible {
+  display: none;
+}
 
 

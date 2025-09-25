@@ -7,12 +7,19 @@ fetch(`/data/${breed}`)
 		const container = document.getElementById("data-container");
 		const clickDetails = document.querySelector(".click-details");
 		const h1 = document.querySelector(".nom-race");
+		const welcome = document.querySelector(".welcome");
 
-		if (!data.images || data.images.length === 0) {
-			container.innerHTML = "Aucune image trouvée.";
+		if (!data.images) {
+			container.innerHTML = 
+			`<h1>Entre un id de race dans la barre de recherche tel que ceci : /breed/abys</h1>
+			<div id="data-container">
+            <img class="image-breed" src="images/cat-8062388_1280.jpg">       
+        </div>`;
 			return;
 		}
 		const images = data.images.slice(0, 5); 
+		clickDetails.classList.toggle('invisible');
+		welcome.classList.toggle('invisible');
 		
 		container.innerHTML = images
 			.map(
